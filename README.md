@@ -168,17 +168,17 @@ data.json</pre>
 
 1. /<dynamic> => Base Line
   
-2. /<dynamyc>Random Character => B
+2. /<dynamyc>{Random Character} => B
   
 3. if Base Line = B => Change Endpoint
   
-4. /<dynamic>{Delimiter}Random Character = Test
+4. /<dynamic>{Delimiter}{Random Character} = Test
   
 5. if Test = Base Line => vulnerable
   
   Exploit:
   
-  ```/<dynamic>{Delimiter}Static extension```
+  ```/<dynamic>{Delimiter}{Static extension}```
   
 
 <p dir="rtl">اگه محتوای کش بر اساس پسوند مشخص بشه، اول یه درخواست ساده به مسیری که محتوای حساس رو برمی‌گردونه می‌زنیم. بعد به انتهای اون مسیر یه کاراکتر رندوم اضافه می‌کنیم.</p>
