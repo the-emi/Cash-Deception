@@ -176,7 +176,9 @@ data.json</pre>
   
 5. if Test = Base Line => vulnerable
   
-  /<dynamic>{Delimiter}Static extension
+  Exploit:
+  
+  ```/<dynamic>{Delimiter}Static extension```
   
 
 <p dir="rtl">اگه محتوای کش بر اساس پسوند مشخص بشه، اول یه درخواست ساده به مسیری که محتوای حساس رو برمی‌گردونه می‌زنیم. بعد به انتهای اون مسیر یه کاراکتر رندوم اضافه می‌کنیم.</p>
