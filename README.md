@@ -189,21 +189,124 @@ data.json</pre>
 
 ### Tips
 
+#### 1.
+
+<p dir="rtl">!!! بعضی مواقع هم جداکننده رو انکد(encode) شده می‌فرستیم !!!</p>
+<p dir="rtl"> </p>
+
+#### 2.
+
 | PHP | اگه از فریم‌ورک استفاده نشده باشه، هرچی آخر مسیر باشه، نادیده می‌گیره | /login == /login.php/* |
 | --- | --- | --- |
 | **Django** | **دستی نوشته می‌شه و دیسپاچر داره. بستگی داره چجوری نوشته شده باشه** | **-** |
 | **ASP.NET** | **قابلیت فرندلی داره. اگه روشن باشه تمام پسوندها رو حذف و ریدایرکت می‌کنه. اما اگه خاموش باشه می‌شه به مسیر کاراکتر اضافه کرد** | **/login.aspx != /login** |
+
+#### 3.
+
+| Spring | ;   |
+| --- | --- |
+| Ruby on Rails | .   |
+| OpenLiteSpeed | %00 |
+| Nginx | %0  |
 
 ## Exploiting static directory cache rules
 
 <p dir="rtl">اگه کش بر اساس مسیر درخواست بود، نیازه تا برای اکسپلویت از دایرکتوری تراورسال(Directory traversal) هم استفاده کرد. به طور کلی، بسته به اینکه سرور اصلی نسبت به تراورسال آسیب‌پذیر باشه یا سرور کش، دو نوع اکسپلویت وجود داره.</p>
 <p dir="rtl"> </p>
 
-### Exploiting normalization by the origin server
+<pre>encoded_dot = /..%2f </pre>
 
-1. find
+### Origin Server Or Cashe Server?
+
+<p dir="rtl">برای اینکه ببینیم بین سرور اصلی و کش، کدوم دایرکتوری تراورسال می‌خورن، باید رفتار هرکدوم رو بررسی کنیم. بعد که متوجه شدیم، اکسپلویت اون رو بررسی کنیم.</p>
+<p dir="rtl"> </p>
+<p dir="rtl"> </p>
+
+1. POST /<dynamic> = Base Line
+  
+2. POST /<dynamic>/test/{encoded_dot} = B
+  
+3. if Base Line == B => Origin Server
+  
+4. GET /<static> = Base Line
+  
+5. GET /<static>/test/{encoded_dot} =B
+  
+6. if B == HIT => Cashe Server
   
 
-exploit
+### Exploiting normalization by the origin server
 
 <pre>/{dynamic}{delimeter}{encoded_dot}{static path}</pre>
+
+### Exploiting normalization by the cache server
+
+<pre>/{static}{encoded_dot}{dynamic}</pre>
+
+### Tips
+
+#### 1.
+
+| Send | /te/..%2fst | /test |
+| --- | --- | --- |
+| /te/..%2fst | Cloud Flare | Cloud Front |
+| /te/..%2fst | GCP | Azure |
+| /te/..%2fst | Fastly | Imperva |
+| /te/..%2fst | Apache | NginX |
+| /te/..%2fst | Gunicorn | IIS |
+| /te/..%2fst | Puma | OpenLite |
+
+#### 2.
+
+**encoded_dot**
+
+/..%2f
+
+/..%5c
+
+%2f%2e%2e%2f
+
+## Exploiting file name cache rules
+
+<p dir="rtl">اگر کش بر اساس اسم فایل‌ها بود، دقیقا شبیه زمانیه که سرور اصلی نرمالزیشین رو انجام بده ولی سرور کش نه.</p>
+<p dir="rtl"> </p>
+<p dir="rtl"> </p>
+
+Exploit
+
+<pre>/{dynamic}{delimeter}{encoded_dot}{Static_File}</pre>
+
+### Static Files
+
+<pre>
+index.html
+robots.txt
+humans.txt
+security.txt
+manifest.json
+sitemap.xml
+favicon.ico
+apple-touch-icon.png
+browserconfig.xml
+styles.css
+main.css
+bootstrap.min.css
+main.js
+app.js
+vendor.js
+scripts.min.js
+logo.png
+banner.jpg
+icon.svg
+background.webp
+favicon.ico
+video.mp4
+intro.webm
+audio.mp3
+fonts.woff
+fonts.woff2
+custom-font.ttf
+icon-font.eot
+config.json
+data.json
+</pre>
