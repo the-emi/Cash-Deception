@@ -66,3 +66,123 @@
 | **Headers** | Cookie, User-Agent, Accept-Encoding | Vary بسته به |
 | **Cookies** | Cookie: session=xyz | Vary: Cookie |
 | **Protocol (HTTP vs HTTPS)** | http:// یا https:// | معمولا |
+
+## Cash Rules
+
+<p dir="rtl">روشی که سرور کش باهاش کش رو انجام می‌ده، همیشه به یه صورت نیست. به مواردی که تعیین می‌کنن چه چیزهایی کش بشن، قوانین کش(Cash Rules) می‌گن.</p>
+<p dir="rtl"> </p>
+
+**1.    Static file extension rules**
+
+<p dir="rtl">بعضی مواقع محتوا بر اساس پسوند(extension) کش می‌شن. یعنی سرور کش URL رو کامل نگاه می‌کنه و اگه مواردی مثل لیست زیر بودن، اون‌ها رو کش می‌کنه:</p>
+
+<pre>
+.7z .apk .avi .bin .bmp .bz2 .class .css .csv .doc .docx .dmg .eot .eps .exe .ejs .flac .gif .ico .iso .jar .js .jpg .jpeg .mid .midi .mk .mp3 .mp4 .ogg .otf .pdf .pict .pls .ps .ppt .pptx .rar .svg .svgz .swf .tar .tif .tiff .ttf .torrent .webp .woff .woff2 .xls .xlsx .zip .zst
+</pre>
+
+**2.    Static directory rules**
+
+<p dir="rtl">بعضی مواقع هم سرور کش یه دایرکتوری خاص رو کش می‌کنه. برای مثال هر مسیری که بعد از static/ قرار بگیره رو کش می‌کنه. لیست زیر شامل مسیرهای رایج برای کش کردنه:</p>
+
+<pre>/static
+/assets
+/wp-content
+/media
+/templates
+/public
+/shared</pre>
+
+**3.    File name rules**
+
+<p dir="rtl">یکی دیگه از روش‌ها، تعیین کردن یه سری فایل خاص برای کش شدنه. به این صورت که برای سرور کش تعریف می‌شه که فقط این فایل‌ها رو کش کن. لیست زیر فایل‌های رایج رو نشون می‌ده:</p>
+
+<pre>index.html
+robots.txt
+humans.txt
+security.txt
+manifest.json
+sitemap.xml
+favicon.ico
+apple-touch-icon.png
+browserconfig.xml
+styles.css
+main.css
+bootstrap.min.css
+main.js
+app.js
+vendor.js
+scripts.min.js
+logo.png
+banner.jpg
+icon.svg
+background.webp
+favicon.ico
+video.mp4
+intro.webm
+audio.mp3
+fonts.woff
+fonts.woff2
+custom-font.ttf
+icon-font.eot
+config.json
+data.json</pre>
+
+# How to exploit
+
+<p dir="rtl">برای تست این آسیب‌پذیری، لازمه تا یه سری کلمه کلیدی رو تعریف کنیم.</p>
+<p dir="rtl"> </p>
+
+#### Origin Server Delimiter
+
+<p dir="rtl">جداکننده(Delimiter) سرور اصلی، به کاراکتری گفته می‌شه که توسط سرور اصلی به عنوان جداکننده در نظر گرفته می‌شه. برای مثال اگه کاراکتر ; توسط سرور به عنوان جداکننده در نظر گرفته بشه:</p>
+<p dir="rtl"> </p>
+
+| URL | مسیری که سرور می‌بینه |
+| --- | --- |
+| /profile;test | /profile |
+
+<p dir="rtl">همونطور که گفته شد، 3 نوع متفاوت برای اعمال کش(Cache Rules) وجود داره. همین موضوع باعث شده تا برای هرمورد، یک نوع اکسپلویت به وجود بیاد. در ادامه به بررسی هر کدام پرداخته شده است.</p>
+<p dir="rtl"> </p>
+
+### CacheServer Delimiter
+
+<p dir="rtl">جداکننده(Delimiter) سرور کش، به کاراکتری گفته می‌شه که توسط سرور کش به عنوان جداکننده در نظر گرفته می‌شه. برای مثال اگه کاراکتر ; توسط سرور کش به عنوان جداکننده در نظر گرفته بشه:</p>
+<p dir="rtl"> </p>
+
+| URL | مسیری که سرور می‌بینه |
+| --- | --- |
+| /profile;test | /profile |
+
+#### Delimiter List
+
+<pre>
+! " # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \ ] ^ _ ` { | } ~ %21 %22 %23 %24 %25 %26 %27 %28 %29 %2A %2B %2C %2D %2E %2F %3A %3B %3C %3D %3E %3F %40 %5B %5C %5D %5E %5F %60 %7B %7C %7D %7E %00 %0A %09
+</pre>
+
+### Base Line
+
+<p dir="rtl">درخواست اصلی(Base Line) درخواستیه که به صورت عادی زده می‌شه و از اون برای مقایسه رفتار سرور توی بقیه درخواست‌ها استفاده می‌شه.</p>
+<p dir="rtl"> </p>
+
+## Exploiting static extension cache rules
+
+1. /<dynamic> => Base Line
+  
+2. /<dynamyc>Random Character => B
+  
+3. if Base Line = B => Change Endpoint
+  
+4. /<dynamic>{Delimiter}Random Character = Test
+  
+5. if Test = Base Line => vulnerable
+  
+  /<dynamic>{Delimiter}Static extension
+  
+
+<p dir="rtl">اگه محتوای کش بر اساس پسوند مشخص بشه، اول یه درخواست ساده به مسیری که محتوای حساس رو برمی‌گردونه می‌زنیم. بعد به انتهای اون مسیر یه کاراکتر رندوم اضافه می‌کنیم.</p>
+<p dir="rtl">!!! اگه درخواستی که کاراکتر اضافه داره، همون محتوای درخواست عادی رو نشون بده، یعنی داره ریدایرکت می‌شه و باید یه مسیر دیگه رو انتخاب کرد !!!</p>
+<p dir="rtl">در ادامه، بین درخواست اصلی و کاراکتر رندوم، کاراکترهایی که ممکه برای سرور به عنوان جداکننده(Delimiter) در نظر گرفته بشه رو امتحان می‌کنیم. اگه کاراکتری پیدا کردیم که با ارسال اون بین درخواست اصلی و کاراکتر رندوم، محتوای اصلی رو نشون داد، یعنی اون کاراکتر توسط سرور به عنوان جداکننده تفسیر می‌شه. در ادامه، بعد از مسیر اصلی و کاراکتر جداکننده پسوندهای استاتیک رو امتحان می‌کنیم.</p>
+<p dir="rtl">!!! این متد زمانی کار می‌کنه که کاراکتر جداکننده توسط سرور اصلی به عنوان جداکننده تفسیر بشه اما سرور کش اون رو بخشی از مسیر در نظر بگیره !!!</p>
+<p dir="rtl"> </p>
+
+### Tips
