@@ -328,3 +328,11 @@ data.json
 <p dir="rtl">مموقع تست چون ممکنه درخواست‌هامون کش بشن و اذیت کننده بشه، از اکستنشن Cash Buster می‌شه استفاده کرد. این اکستنشن یه سری کوئری رندوم آخر درخواست قرار می‌ده تا هر سری یه Cashe Key جدید ساخته شه</p>
 <p dir="rtl"> </p>
 <p dir="rtl"> </p>
+
+# For more
+
+1. [A Methodology for Web Cache Deception Vulnerability Discovery](https://air.unimi.it/retrieve/7df93d97-538a-4df6-9355-7625561e0416/CLOSER_2024_36_CR%20%281%29.pdf)
+  
+2. [Web Cache Deception Escalates](https://www.usenix.org/system/files/sec22-mirheidari.pdf)
+  
+3. [bending the rules of web cache exploitation](https://portswigger.net/kb/papers/kapvrid/gotta-cache-em-all.pdf)
