@@ -13,7 +13,7 @@
 ## Why?
 
 <div dir="rtl">
-<p style="text-align: justify;">این آسیب‌پذیری زمانی به وجود می‌آد که بین سرور اصلی(origin server) و سرور کش(cache server)، عدم هناهنگی وجود داشته باشه.</p>
+<p style="text-align: justify;">این آسیب‌پذیری زمانی به وجود می‌آد که بین سرور اصلی(origin server) و سرور کش(cache server)، عدم هماهنگی وجود داشته باشه.</p>
 </div>
 
 ## How to exploit?
